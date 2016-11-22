@@ -8,7 +8,7 @@ var driver = new webdriver.Builder()
     .forBrowser('chrome')
     .build();
 
-//var gtins = require('./config.json').gtins;
+var gtins = require('./config.json').gtins;
 var gtins = ['7315547598006']; // ok
 //var gtins = ['7332513106065']; // not found
 //var gtins = ['7393155001149']; // fail
