@@ -32,14 +32,15 @@ driver.quit();
 
 
 function getGTINInfo(gtin, rowno) {
-	driver.get('http://directory.gs1.se/Gepirsearch/SearchGtin.aspx');
-	driver.findElement(By.name('ctl00$body$GtinInput')).sendKeys(gtin);
-	driver.findElement(By.name('ctl00$body$SearchButton')).click();
+	driver.get('http://gepir.gs1.se/web/sv/Home/SearchGTIN');
+	driver.findElement(By.id('KeyValue')).sendKeys(gtin);
+	driver.findElement(By.id('searchGTIN')).click();
 
-	return waitForElement(driver, By.id("ctl00_body_SearchResult_ResultRepeater_ctl01_NameLabel"), 10000)
+	return waitForElement(driver, By.id("Results"), 10000)
 		.getText()
 		.then(
 			function(text){
+				console.log("FOUND IT!");
 				var p = [];
 				p.push(rowno);
 				p.push(getTextForElementById('ctl00_body_SearchResult_ResultRepeater_ctl01_NameLabel'));
