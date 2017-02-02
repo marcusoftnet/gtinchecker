@@ -1,4 +1,4 @@
-let scraper = require("../scrapeSplitter.js");
+let scraper = require("../src/scrapeSplitter.js");
 let should = require("should");
 
 describe("split html", function () {

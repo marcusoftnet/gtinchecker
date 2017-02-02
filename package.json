@@ -2,16 +2,16 @@
   "name": "gtin-getter",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": ".src/index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "mocha -R list -u bdd -w"
+    "start": "node ./src/index.js",
+    "test": "mocha -R list -u bdd",
+    "test:watch": "npm t -- -w"
   },
   "author": "Marcus Hammarberg @marcusoftnet",
   "license": "MIT",
   "dependencies": {
-    "request": "*",
-    "selenium-webdriver": "^3.0.0-beta-3"
+    "request": "*"
   },
   "devDependencies": {
     "mocha": "^3.2.0",
