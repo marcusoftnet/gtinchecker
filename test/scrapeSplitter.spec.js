@@ -63,13 +63,19 @@ describe("split working html", function () {
 describe("handles errors", function () {
 	it("for no hits", function (done) {
 		let html = fs.readFileSync('./test/testFixture_noHits.html', 'utf8');
-		scraper.scrapeBasicInformation(html).should.equal("Not found");
+		scraper.scrapeBasicInformation(html).should.equal("Sökningen gav inga träffar");
+		done();
+	});
+
+	it("for more than one hit", function (done) {
+		let html = fs.readFileSync('./test/testFixture_moreThan1Hits.html', 'utf8');
+		scraper.scrapeBasicInformation(html).should.equal("Sökningen gav flera träffar");
 		done();
 	});
 
 	it("for faulty GTIN", function (done) {
 		let html = fs.readFileSync('./test/testFixture_faultyNumber.html', 'utf8');
-		scraper.scrapeBasicInformation(html).should.equal("Error in GTIN");
+		scraper.scrapeBasicInformation(html).should.equal("Fel på GTIN");
 		done();
 	});
 });

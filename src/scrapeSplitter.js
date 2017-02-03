@@ -11,8 +11,9 @@ module.exports.scrapeExtraInfo = function (html) {
 module.exports.scrapeBasicInformation = function (html) {
 	let $ = cheerio.load(html);
 
-	if($('.alert').length > 0){ return "Error in GTIN"; }
-	if(html.indexOf("inga träffar") > 0 ){ return "Not found"; }
+	if($('.alert').length > 0){ return "Fel på GTIN"; }
+	if(html.indexOf("[RC-2]") > 0 ){ return "Sökningen gav inga träffar"; }
+	if(html.indexOf("[RC-3]") > 0 ){ return "Sökningen gav flera träffar"; }
 
 	let tableRows =  $('.resultsTable').html().split('<tr>');
 
