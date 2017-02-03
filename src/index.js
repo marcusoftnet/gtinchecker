@@ -1,21 +1,46 @@
+"use strict";
+
 const FILENAME = './gtins.csv';
-var fs = require('fs');
-var webdriver = require('selenium-webdriver'),
-    By = webdriver.By,
-    until = webdriver.until;
+const fs = require('fs');
+let co = require("co");
+let request = require("co-request");
+let scraper = require("./scrapeSplitter.js");
 
-var driver = new webdriver.Builder()
-    .forBrowser('chrome')
-    .build();
-
-var gtins = require('./config.json').gtins;
-var gtins = ['7315547598006']; // ok
+let gtins = require('../config/config.json').gtins;
+gtins = ['7315547598006']; // ok
 //var gtins = ['7332513106065']; // not found
 //var gtins = ['7393155001149']; // fail
 
-var fd = fs.openSync(FILENAME, 'w');
-fs.appendFileSync(FILENAME, `Row;GTIN;Name;Last updated;GTIN Label;\n`);
+let url = 'http://gepir.gs1.se/web/sv/Home/SearchNumber?KeyCode=GTIN&KeyValue=7310155802002&Method=Search+Party+By+GTIN&LanguageCode=SV&Re=&_=-1';
 
+let options = {
+	url : url,
+	proxy : 'http://proxy01.ica.se:8080'
+};
+ 
+co(function *() {
+	let fd = fs.openSync(FILENAME, 'w');
+	fs.appendFileSync(FILENAME, `Row;GTIN;Name;Last updated;GTIN Label;\n`);
+
+	yield writeHeader();
+
+	gtins.forEach(function (gtin) {
+	 	let result = yield request(options); 
+		let address = scraper.scrapeAddress(result.body);
+		let extraInfo = scraper.scrapeExtraInfo(result.body);
+		let basicInfo = scraper.scrapeBasicInformation(result.body);
+	    console.log(extraInfo);
+	    console.log(basicInfo);
+	    console.log(address);
+
+    	yield writeRow(basicInfo, extraInfo, address);
+	});
+}).catch(function (err) {
+    console.err(err);
+});
+
+
+/*
 for (var i = 0; i < gtins.length; i++) {
 	let current = gtins[i];
 	getGTINInfo(current, i+1)
@@ -26,46 +51,4 @@ for (var i = 0; i < gtins.length; i++) {
 				console.log(`Row ${data[0]} written for GTIN: ${current};`)
 			});
 		});
-}
-
-driver.quit();
-
-
-function getGTINInfo(gtin, rowno) {
-	driver.get('http://gepir.gs1.se/web/sv/Home/SearchGTIN');
-	driver.findElement(By.id('KeyValue')).sendKeys(gtin);
-	driver.findElement(By.id('searchGTIN')).click();
-
-	return waitForElement(driver, By.id("Results"), 10000)
-		.getText()
-		.then(
-			function(text){
-				console.log("FOUND IT!");
-				var p = [];
-				p.push(rowno);
-				p.push(getTextForElementById('ctl00_body_SearchResult_ResultRepeater_ctl01_NameLabel'));
-				p.push(getTextForElementById('ctl00_body_SearchResult_ResultRepeater_ctl01_LastUpdatedLabel'));
-				p.push(getTextForElementById('ctl00_body_SearchResult_ResultRepeater_ctl01_GlnLabel'));
-				return Promise.all(p);
-			},
-			function(err) {
-				var p = [rowno, 'Not found', '-', '-'];
-				return Promise.all(p);
-			}
-		);
-}
-
-function getTextForElementById(selectorId) {
-	return driver
-		.findElement(By.id(selectorId))
-		.getText()
-		.then(
-			function (text) { return text; },
-			function (err)  { return "Broken at gs1.se"}
-		);
-}
-
-function waitForElement(driver, locator, timeout) {
-  var timeout = timeout || DEFAULT_TIMEOUT;
-  return driver.wait(until.elementLocated(locator), timeout);
-};
+};*/
