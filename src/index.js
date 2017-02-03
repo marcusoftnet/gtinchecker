@@ -1,19 +1,15 @@
 "use strict";
 
-const FILENAME = './gtins.csv';
 const fs = require('fs');
-let co = require("co");
-let request = require('request');
-let scraper = require("./scrapeSplitter.js");
-let fileHelper = require("./fileHelper.js");
+const request = require('request');
+const scraper = require("./scrapeSplitter.js");
+const fileHelper = require("./fileHelper.js");
 
-let gtins = require('../config/config.json').gtins;
-//gtins = ['7310155802002']; // ok
-//var gtins = ['7332513106065']; // not found
-//var gtins = ['7393155001149']; // fail
-
+const gtins = require('../config/config.json').gtins;
 const url = 'http://gepir.gs1.se/web/sv/Home/SearchNumber?KeyCode=GTIN&Method=Search+Party+By+GTIN&LanguageCode=SV&Re=&_=-1&KeyValue=';
- 
+
+
+// Main 
 fileHelper.recreateFile();
 fileHelper.createHeaderRow();
 
