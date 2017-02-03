@@ -11,7 +11,7 @@
   "author": "Marcus Hammarberg @marcusoftnet",
   "license": "MIT",
   "dependencies": {
-    "request": "*",
+    "request": "^2.79.0",
     "thunkify": "^2.1.2"
   },
   "devDependencies": {

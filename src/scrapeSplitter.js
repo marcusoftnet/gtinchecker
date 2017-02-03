@@ -10,6 +10,10 @@ module.exports.scrapeExtraInfo = function (html) {
 
 module.exports.scrapeBasicInformation = function (html) {
 	let $ = cheerio.load(html);
+
+	if($('.alert').length > 0){ return "Error in GTIN"; }
+	if(html.indexOf("inga träffar") > 0 ){ return "Not found"; }
+
 	let tableRows =  $('.resultsTable').html().split('<tr>');
 
 	let keys = getPropertiesFromHeaderRow($, tableRows);
@@ -33,7 +37,6 @@ function getValuesFromFirstRow($, tableRows, keys) {
 					i++;
 				}
 			});
-
 			processed = true;
 		}
 	});

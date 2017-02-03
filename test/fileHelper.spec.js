@@ -22,24 +22,26 @@ describe('file helper', function() {
 		content[0].split(';').length.should.be.above(2);
 		done();
 	});
+
 	it('appends new rows with data', function (done) {
 		// arrange 
 		let row = {
-			No : 123456,
+			RowNo : 123456,
+			GTIN : '5900783007874',
 			Företagsnamn : 'Företagsnamn_Data',
 			GLN : 'GLN_Data',
 			GCP : 'GCP_Data'
 		};
 
 		// act
-		fileHelper.appendRow(row)
+		let rowWritten = fileHelper.appendRow(row);
 
 		// assert
-		let content = fileHelper.getFileContents();
-		content.should.containEql('123456');
-		content.should.containEql('Företagsnamn_Data');
-		content.should.containEql('GLN_Data');
-		content.should.containEql('GCP_Data');
+		rowWritten.should.containEql('123456');
+		rowWritten.should.containEql('5900783007874');
+		rowWritten.should.containEql('Företagsnamn_Data');
+		rowWritten.should.containEql('GLN_Data');
+		rowWritten.should.containEql('GCP_Data');
 		done();
 	});
 });

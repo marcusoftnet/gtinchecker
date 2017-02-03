@@ -1,10 +1,10 @@
 let scraper = require("../src/scrapeSplitter.js");
 let should = require("should");
+const fs = require("fs");
 
-describe("split html", function () {
+describe("split working html", function () {
 	let html = '';
 	before(function (done) {
-		let fs = require("fs");
 		fs.readFile('./test/testFixture.html', 'utf8', function(err, data) {
   			if (err) throw err;
   			html = data;
@@ -57,5 +57,19 @@ describe("split html", function () {
 		it("GS1företagsprefix", function () { 
 			basicInformation.GS1företagsprefix.should.equal("731554"); 
 		});	
+	});
+});
+
+describe("handles errors", function () {
+	it("for no hits", function (done) {
+		let html = fs.readFileSync('./test/testFixture_noHits.html', 'utf8');
+		scraper.scrapeBasicInformation(html).should.equal("Not found");
+		done();
+	});
+
+	it("for faulty GTIN", function (done) {
+		let html = fs.readFileSync('./test/testFixture_faultyNumber.html', 'utf8');
+		scraper.scrapeBasicInformation(html).should.equal("Error in GTIN");
+		done();
 	});
 });

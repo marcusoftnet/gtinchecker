@@ -3,52 +3,69 @@
 const FILENAME = './gtins.csv';
 const fs = require('fs');
 let co = require("co");
-let request = require("co-request");
+let request = require('request');
 let scraper = require("./scrapeSplitter.js");
+let fileHelper = require("./fileHelper.js");
 
 let gtins = require('../config/config.json').gtins;
-gtins = ['7315547598006']; // ok
+/*gtins = ['7310155802002']; // ok
+gtins = ["0000073100126",
+"0000073100126",
+"0000073102144",
+"0000073105824",
+"0000073107026",
+"0000073109228",
+"0000073114178",
+"0000073116998",
+"0000073117001",
+"0000073117018",
+"0000073117216",
+"0000073117223"];*/
 //var gtins = ['7332513106065']; // not found
 //var gtins = ['7393155001149']; // fail
 
-let url = 'http://gepir.gs1.se/web/sv/Home/SearchNumber?KeyCode=GTIN&KeyValue=7310155802002&Method=Search+Party+By+GTIN&LanguageCode=SV&Re=&_=-1';
+const url = 'http://gepir.gs1.se/web/sv/Home/SearchNumber?KeyCode=GTIN&Method=Search+Party+By+GTIN&LanguageCode=SV&Re=&_=-1&KeyValue=';
 
 let options = {
 	url : url,
 	proxy : 'http://proxy01.ica.se:8080'
 };
  
-co(function *() {
-	let fd = fs.openSync(FILENAME, 'w');
-	fs.appendFileSync(FILENAME, `Row;GTIN;Name;Last updated;GTIN Label;\n`);
+fileHelper.recreateFile();
+fileHelper.createHeaderRow();
 
-	yield writeHeader();
-
-	gtins.forEach(function (gtin) {
-	 	let result = yield request(options); 
-		let address = scraper.scrapeAddress(result.body);
-		let extraInfo = scraper.scrapeExtraInfo(result.body);
-		let basicInfo = scraper.scrapeBasicInformation(result.body);
-	    console.log(extraInfo);
-	    console.log(basicInfo);
-	    console.log(address);
-
-    	yield writeRow(basicInfo, extraInfo, address);
-	});
-}).catch(function (err) {
-    console.err(err);
-});
-
-
-/*
+let rowNo;
 for (var i = 0; i < gtins.length; i++) {
-	let current = gtins[i];
-	getGTINInfo(current, i+1)
-		.then(function (data) {
-			
-			var row = `${data[0]};${current};${data[1]};${data[2]};${data[3]};\n`;
-			fs.appendFile(FILENAME, row, function (err) {
-				console.log(`Row ${data[0]} written for GTIN: ${current};`)
-			});
-		});
-};*/
+	options.url = options.url + gtins[i];
+	rowNo = i+1;
+
+	request(options, function (error, response, body) {
+		console.log("Processing: " + gtins[i]);
+		if (!error && response.statusCode == 200) {
+    		console.log(body) // Show the HTML for the Google homepage. 
+  		}
+	
+		let basicInfo = scraper.scrapeBasicInformation(body);
+		let row;
+
+		if(typeof basicInfo === 'object') {
+			row = {
+				RowNo : rowNo,
+				GTIN : gtins[i], 
+				Företagsnamn : basicInfo.Företagsnamn,
+				GLN : basicInfo.HuvudGLN,
+				GCP : basicInfo.GS1företagsprefix
+			};
+		}
+		else{
+			row = {
+				RowNo : rowNo,
+				GTIN : gtins[i], 
+				Företagsnamn: basicInfo
+			}
+		}
+
+		let rowWritten = fileHelper.appendRow(row);
+		console.log("Wrote row: " + rowNo);
+	})	
+}
